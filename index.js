@@ -6,7 +6,7 @@ var api = require('./Utils/api');
 function init(deviceId, deviceKey) {
   api.fetchTCPIP(deviceId, deviceKey)
   .then(function(data) {
-    var TCP_IP = data.text.split(',')[0];
+    var TCP_IP )= data.text.split(',')[0];
     var TCP_PORT = data.text.split(',')[1];
     var client = new net.Socket();
 
@@ -43,8 +43,8 @@ function init(deviceId, deviceKey) {
 
   return {
     on: function(dataChannel, callback) {
-      return eventEmitter.on(dataChannel, function(data) {
-        return callback(data);
+      return eventEmitter.on(dataChannel, function() {
+        if(callback) callback.apply(null,[].slice.call(arguments))
       });
     },
     emit: function(dataChannel, timestamp, value) {
