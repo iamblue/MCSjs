@@ -6,13 +6,20 @@ var api = require('./Utils/api');
 function init(deviceId, deviceKey) {
   api.fetchTCPIP(deviceId, deviceKey)
   .then(function(data) {
-    var TCP_IP )= data.text.split(',')[0];
+    var TCP_IP = data.text.split(',')[0];
     var TCP_PORT = data.text.split(',')[1];
     var client = new net.Socket();
 
     client.connect(TCP_PORT, TCP_IP, function() {
       eventEmitter.emit('mcs:connected', true);
       client.write(deviceId + ',' + deviceKey + ',0');
+      function hearbeating() {
+        setTimeout(function () {
+          client.write(deviceId + ',' + deviceKey + ',0');
+          hearbeating();
+        }, 50000);
+      }
+      hearbeating();
     });
 
     client.on('data', function(data) {
