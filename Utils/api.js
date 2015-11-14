@@ -15,8 +15,8 @@ var APIs = {
     })
   },
 
-  uploadDataPoint: function(deviceId, deviceKey, dataChannel, value) {
-    var data = dataChannel + ',,' + value;
+  uploadDataPoint: function(deviceId, deviceKey, dataChannel, timestamp, value) {
+    var data = dataChannel + ',' + timestamp + ',' + value;
     return new Promise(function(resolve, reject) {
       request
       .post(host + '/mcs/v2/devices/' + deviceId + '/datapoints.csv')
