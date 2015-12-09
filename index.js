@@ -31,7 +31,7 @@ function init(deviceId, deviceKey) {
       var commandDataValue = command.split(commandTime+','+commandDataChannel+',')[1];
 
       if (commandDataChannel && commandDataValue) {
-        return eventEmitter.emit(commandDataChannel, commandTime, commandDataValue)
+        return eventEmitter.emit(commandDataChannel, commandDataValue, commandTime)
       }
 
       eventEmitter.on('end', function(){
