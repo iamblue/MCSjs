@@ -22,20 +22,18 @@ var myApp = mcs.register({
   deviceKey: 'Input your deviceKey',
 });
 
-myApp.on('GPIO_00', function(data) {
+// Listening the command from MCS.
+myApp.on('control_channel_name', function(data, timestamp) {
   console.log('blink');
 });
 
-myApp.on('mcs:command', function(data) {
-  console.log(data);
-});
+// Uploading data to MCS.
+myApp.on('display_channel_name', '', 'your data');
 
 // myApp.catch(function(err) {
 //   console.log(err);
 // })
-
 // myApp.end();
-// myApp.emit('GPIO_00','1');
 
 ```
 
