@@ -3,8 +3,8 @@ var eventEmitter = new events.EventEmitter();
 var net = require('net');
 var api = require('./Utils/api');
 
-function init(deviceId, deviceKey) {
-  api.fetchTCPIP(deviceId, deviceKey)
+function init(deviceId, deviceKey, host) {
+  api.fetchTCPIP(deviceId, deviceKey, host)
   .then(function(data) {
     var TCP_IP = data.text.split(',')[0];
     var TCP_PORT = data.text.split(',')[1];
@@ -55,13 +55,14 @@ function init(deviceId, deviceKey) {
       });
     },
     emit: function(dataChannel, timestamp, value) {
-      return api.uploadDataPoint(deviceId, deviceKey, dataChannel, timestamp, value);
+      return api.uploadDataPoint(deviceId, deviceKey, dataChannel, timestamp, value, host);
     },
     end: function() {
       return eventEmitter.emit('end');
     },
     catch: function (callback){
       return eventEmitter.on('mcs:error', function(err) {
+        console.log(err);
         return callback(err);
       });
     }
@@ -75,7 +76,8 @@ function mcs () {
   this.register = function(config) {
     this.deviceId = config.deviceId;
     this.deviceKey = config.deviceKey;
-    return init(this.deviceId, this.deviceKey);
+    this.host = config.host;
+    return init(this.deviceId, this.deviceKey, this.host);
   };
 }
 

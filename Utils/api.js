@@ -1,9 +1,10 @@
 var request = require('superagent');
-var host = 'https://api.mediatek.com';
+var globalHost = 'https://api.mediatek.com';
 var Promise = require('bluebird');
 
 var APIs = {
-  fetchTCPIP: function(deviceId, deviceKey) {
+  fetchTCPIP: function(deviceId, deviceKey, host) {
+    var host = host || globalHost;
     return new Promise(function(resolve, reject) {
       request
       .get(host + '/mcs/v2/devices/' + deviceId + '/connections.csv')
@@ -15,7 +16,8 @@ var APIs = {
     })
   },
 
-  uploadDataPoint: function(deviceId, deviceKey, dataChannel, timestamp, value) {
+  uploadDataPoint: function(deviceId, deviceKey, dataChannel, timestamp, value, host) {
+    var host = host || globalHost;
     var data = dataChannel + ',' + timestamp + ',' + value;
     return new Promise(function(resolve, reject) {
       request
