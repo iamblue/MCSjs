@@ -15,5 +15,5 @@ myApp.on('switch', function(data) {
 });
 
 setTimeout(function() {
-  myApp.emit('integer','', 456);
+  myApp.emit('integer','', 12312313);
 }, 5000)

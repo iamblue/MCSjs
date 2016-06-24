@@ -80,8 +80,8 @@ function initMQTTMethod(deviceId, deviceKey, host, port, qos) {
     emitData(data);
   });
 
-  eventEmitter.on('mcs:sendmsg', function(data) {
-    client.publish(topic, data, { qos: qos });
+  eventEmitter.on('mcs:sendmsg', function(data, dataChannel) {
+    client.publish(topic.replace('/+', '/' + dataChannel) , data.toString(), { qos: qos });
   });
 
   client.on('close', function() {
@@ -108,7 +108,7 @@ function init(deviceId, deviceKey, method, host, port, qos) {
       if ( method === 'tcp' ) {
         return api.uploadDataPoint(deviceId, deviceKey, dataChannel, timestamp, value, host);
       } else if ( method === 'mqtt' ) {
-        return eventEmitter.emit('mcs:sendmsg', timestamp + ',' + dataChannel + ',' + value);
+        return eventEmitter.emit('mcs:sendmsg', value, dataChannel);
       }
     },
     end: function() {
