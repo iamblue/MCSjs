@@ -11,7 +11,7 @@
 
 Complete documentation can be found in Here.
 
-## Usage
+## Usage For TCP
 
 ```js
 
@@ -34,6 +34,30 @@ myApp.on('display_channel_name', '', 'your data');
 //   console.log(err);
 // })
 // myApp.end();
+
+```
+
+## Usage for MQTT
+
+```
+var mcs = require('mcsjs');
+
+var myApp = mcs.register({
+  deviceId: 'your deviceId',
+  deviceKey: 'your deviceKey',
+  host: 'mqtt.mcs.mediatek.com',
+  method: 'mqtt',
+  port: 1883,
+  qos: 0,
+});
+
+myApp.on('switch', function(data) {
+  console.log(data);
+});
+
+setTimeout(function() {
+  myApp.emit('integer','', 456);
+}, 5000)
 
 ```
 

@@ -1,10 +1,29 @@
 var events = require('events');
 var eventEmitter = new events.EventEmitter();
-var net = require('net');
 var api = require('./Utils/api');
 
-function init(deviceId, deviceKey, host) {
-  api.fetchTCPIP(deviceId, deviceKey, host)
+function emitData(data, deviceId, deviceKey) {
+  eventEmitter.emit('mcs:command', data.toString());
+  var command = data.toString();
+
+  if (deviceId && deviceKey) {
+    // for tcp
+    command = data.toString().replace(deviceId + ',' + deviceKey + ',', '');
+  }
+
+  var commandTime = command.split(',')[0];
+  var commandDataChannel = command.split(',')[1];
+  var commandDataValue = command.split(commandTime+','+commandDataChannel+',')[1];
+
+  if (commandDataChannel && commandDataValue) {
+    return eventEmitter.emit(commandDataChannel, commandDataValue, commandTime)
+  }
+
+}
+
+function initTcpMethod(deviceId, deviceKey, host) {
+  var net = require('net');
+  return api.fetchTCPIP(deviceId, deviceKey, host)
   .then(function(data) {
     var TCP_IP = data.text.split(',')[0];
     var TCP_PORT = data.text.split(',')[1];
@@ -23,17 +42,7 @@ function init(deviceId, deviceKey, host) {
     });
 
     client.on('data', function(data) {
-      eventEmitter.emit('mcs:command', data.toString());
-
-      var command = data.toString().replace(deviceId + ',' + deviceKey + ',', '');
-      var commandTime = command.split(',')[0];
-      var commandDataChannel = command.split(',')[1];
-      var commandDataValue = command.split(commandTime+','+commandDataChannel+',')[1];
-
-      if (commandDataChannel && commandDataValue) {
-        return eventEmitter.emit(commandDataChannel, commandDataValue, commandTime)
-      }
-
+      emitData(data, deviceId, deviceKey);
       eventEmitter.on('end', function(){
         return client.destroy();
       });
@@ -46,7 +55,48 @@ function init(deviceId, deviceKey, host) {
   })
   .catch(function(err) {
     return eventEmitter.emit('mcs:error', err);
-  })
+  });
+}
+
+function initMQTTMethod(deviceId, deviceKey, host, port, qos) {
+  var mqtt = require('mqtt');
+
+  var settings = {
+    clientId: 'client-' + new Date().getTime(),
+    port: port,
+    host: host,
+  };
+
+  var qos = qos || 0;
+
+  var topic = 'mcs/' + deviceId + '/' + deviceKey + '/+';
+  client = mqtt.connect(settings);
+
+  client.subscribe(topic, { qos: qos }, function() {
+    console.log('Connect to MCS.');
+  });
+
+  client.on('message', function(topic, data) {
+    emitData(data);
+  });
+
+  eventEmitter.on('mcs:sendmsg', function(data) {
+    client.publish(topic, data, { qos: qos });
+  });
+
+  client.on('close', function() {
+    eventEmitter.emit('mcs:connected', false);
+  });
+
+}
+
+function init(deviceId, deviceKey, method, host, port, qos) {
+
+  if (method === 'tcp') {
+    initTcpMethod(deviceId, deviceKey, host);
+  } else if (method === 'mqtt') {
+    initMQTTMethod(deviceId, deviceKey, host, port, qos)
+  }
 
   return {
     on: function(dataChannel, callback) {
@@ -55,7 +105,11 @@ function init(deviceId, deviceKey, host) {
       });
     },
     emit: function(dataChannel, timestamp, value) {
-      return api.uploadDataPoint(deviceId, deviceKey, dataChannel, timestamp, value, host);
+      if ( method === 'tcp' ) {
+        return api.uploadDataPoint(deviceId, deviceKey, dataChannel, timestamp, value, host);
+      } else if ( method === 'mqtt' ) {
+        return eventEmitter.emit('mcs:sendmsg', timestamp + ',' + dataChannel + ',' + value);
+      }
     },
     end: function() {
       return eventEmitter.emit('end');
@@ -76,8 +130,11 @@ function mcs () {
   this.register = function(config) {
     this.deviceId = config.deviceId;
     this.deviceKey = config.deviceKey;
+    this.method = config.method || 'tcp',
     this.host = config.host;
-    return init(this.deviceId, this.deviceKey, this.host);
+    this.port = config.port;
+    this.qos = config.qos;
+    return init(this.deviceId, this.deviceKey, this.method, this.host, this.port, this.qos);
   };
 }
 

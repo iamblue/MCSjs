@@ -53,3 +53,5 @@ jscs-report.json
 jshint-report.json
 
 # client/build
+
+config.json
