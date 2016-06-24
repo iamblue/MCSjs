@@ -39,7 +39,7 @@ myApp.on('display_channel_name', '', 'your data');
 
 ## Usage for MQTT
 
-```
+```js
 var mcs = require('mcsjs');
 
 var myApp = mcs.register({
