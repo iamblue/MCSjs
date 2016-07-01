@@ -27,6 +27,7 @@ function initTcpMethod(deviceId, deviceKey, host) {
   .then(function(data) {
     var TCP_IP = data.text.split(',')[0];
     var TCP_PORT = data.text.split(',')[1];
+    console.log(data.text);
     var client = new net.Socket();
 
     client.connect(TCP_PORT, TCP_IP, function() {
@@ -54,6 +55,7 @@ function initTcpMethod(deviceId, deviceKey, host) {
     });
   })
   .catch(function(err) {
+    console.log(err)
     return eventEmitter.emit('mcs:error', err);
   });
 }
@@ -90,12 +92,13 @@ function initMQTTMethod(deviceId, deviceKey, host, port, qos) {
 
 }
 
-function init(deviceId, deviceKey, method, host, port, qos) {
+function init(deviceId, deviceKey, method, host, port, qos, mqttHost) {
 
   if (method === 'tcp') {
     initTcpMethod(deviceId, deviceKey, host);
+    console.log(123123)
   } else if (method === 'mqtt') {
-    initMQTTMethod(deviceId, deviceKey, host, port, qos)
+    initMQTTMethod(deviceId, deviceKey, mqttHost, port, qos)
   }
 
   return {
@@ -134,7 +137,8 @@ function mcs () {
     this.host = config.host;
     this.port = config.port;
     this.qos = config.qos;
-    return init(this.deviceId, this.deviceKey, this.method, this.host, this.port, this.qos);
+    this.mqttHost = config.mqttHost;
+    return init(this.deviceId, this.deviceKey, this.method, this.host, this.port, this.qos, this.mqttHost);
   };
 }
 
