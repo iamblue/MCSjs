@@ -27,7 +27,6 @@ function initTcpMethod(deviceId, deviceKey, host) {
   .then(function(data) {
     var TCP_IP = data.text.split(',')[0];
     var TCP_PORT = data.text.split(',')[1];
-    console.log(data.text);
     var client = new net.Socket();
 
     client.connect(TCP_PORT, TCP_IP, function() {
@@ -96,7 +95,6 @@ function init(deviceId, deviceKey, method, host, port, qos, mqttHost) {
 
   if (method === 'tcp') {
     initTcpMethod(deviceId, deviceKey, host);
-    console.log(123123)
   } else if (method === 'mqtt') {
     initMQTTMethod(deviceId, deviceKey, mqttHost, port, qos)
   }
