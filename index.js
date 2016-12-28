@@ -109,7 +109,7 @@ function init(deviceId, deviceKey, method, host, port, qos, mqttHost) {
       if ( method === 'tcp' ) {
         return api.uploadDataPoint(deviceId, deviceKey, dataChannel, timestamp, value, host);
       } else if ( method === 'mqtt' ) {
-        return eventEmitter.emit('mcs:sendmsg', value, dataChannel);
+        return eventEmitter.emit('mcs:sendmsg', ',' + timestamp + ',' + value, dataChannel);
       }
     },
     end: function() {
