@@ -1,12 +1,12 @@
 var mcs = require('../index.js');
-var config = require('../config.json');
+// var config = require('../config.json');
 
 var myApp = mcs.register({
-  deviceId: 'DU8xrUWV',
-  deviceKey: 'nE1EFLIlm3TrZg79',
+  deviceId: 'DSf5ed5S',
+  deviceKey: '2FQteEYJ64rAP4ky',
 });
 
-myApp.on('switch', function(data) {
+myApp.on('control', function(data) {
   console.log(data);
 });
 
