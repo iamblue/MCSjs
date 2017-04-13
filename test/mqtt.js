@@ -1,10 +1,9 @@
 var mcs = require('../index.js');
-var config = require('../config.json');
 
 var myApp = mcs.register({
-  deviceId: config.deviceId,
-  deviceKey: config.deviceKey,
-  mqttHost: 'mqtt.mcs.mediatek.io',
+  deviceId: 'DESllkuv',
+  deviceKey: 'yiMzYOD3tB2FZwdO',
+  mqttHost: 'mqtt.mcs.mediatek.com',
   method: 'mqtt',
   port: 1883,
   qos: 0,
@@ -15,5 +14,5 @@ myApp.on('switch', function(data) {
 });
 
 setTimeout(function() {
-  myApp.emit('integer','', 12312313);
-}, 5000)
+  myApp.emit('string','', new Date().getTime());
+}, 1000)
